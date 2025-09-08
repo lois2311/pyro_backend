@@ -14,6 +14,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const discountRoutes = require('./routes/discountRoutes');
 const wompiRoutes = require('./routes/wompiRoutes');
+const mongoose = require('mongoose');
 
 const app = express();
 
@@ -58,6 +59,23 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/discounts', discountRoutes);
 app.use('/api/wompi', wompiRoutes);
+
+// Health check endpoints
+const healthHandler = (_req, res) => {
+    const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+    const dbStateIdx = typeof mongoose.connection.readyState === 'number' ? mongoose.connection.readyState : 0;
+    const payload = {
+        status: 'ok',
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString(),
+        db: states[dbStateIdx] || 'unknown',
+    };
+    res.set('Cache-Control', 'no-store');
+    res.status(200).json(payload);
+};
+
+app.get('/health', healthHandler);
+app.get('/api/health', healthHandler);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
