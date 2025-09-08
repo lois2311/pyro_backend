@@ -71,7 +71,7 @@ const healthHandler = (_req, res) => {
         db: states[dbStateIdx] || 'unknown',
     };
     res.set('Cache-Control', 'no-store');
-    res.status(200).json(payload);
+    res.status(200).send("ok");
 };
 
 app.get('/health', healthHandler);
